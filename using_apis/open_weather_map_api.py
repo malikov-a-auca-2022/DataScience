@@ -1,8 +1,7 @@
 import xmltodict
-import os
 import requests
 
-api_key = os.environ["OWM_API_KEY"]
+api_key = 'effd3a3e8b18c66c32fcdf0231eefce8'
 city_name = "Bishkek"
 
 url = (f"https://api.openweathermap.org/data/2.5/weather?"
