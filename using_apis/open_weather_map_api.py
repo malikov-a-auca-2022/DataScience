@@ -1,7 +1,7 @@
 import xmltodict
 import requests
 
-api_key = 'effd3a3e8b18c66c32fcdf0231eefce8'
+api_key = 'your_key'
 city_name = "Bishkek"
 
 url = (f"https://api.openweathermap.org/data/2.5/weather?"
