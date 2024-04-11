@@ -1,9 +1,7 @@
-import math
-
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
+from statsmodels.tsa.arima.model import ARIMA
 
 files = {'air_pol': 'API_EN.ATM.PM25.MC.ZS_DS2_en_excel_v2_3588.xls',
          'water': 'API_ER.GDP.FWTL.M3.KD_DS2_en_excel_v2_3500.xls',
@@ -26,7 +24,7 @@ for name, file in files.items():
     data[name] = df
 
 # country code
-cc = 'GBR'
+cc = 'USA'
 # country data
 cd = pd.DataFrame()
 
@@ -74,24 +72,25 @@ print()
 
 cd_filt.to_excel(excelWriter, sheet_name='Sheet2', index=True)
 
-sns.lineplot(data=cd, markers=True)
+sns.lineplot(data=cd_filt, markers=True)
 plt.grid()
 plt.show()
 
-for col in cd:
-    if cd[col].isnull().sum() > 0:
-        X = pd.to_numeric(cd[col].dropna().index).values.reshape(-1, 1)
-        y = cd[col].dropna().values
-        lr_model = LinearRegression()
-        lr_model.fit(X, y)
+for col in cd_filt:
+    if cd_filt[col].isnull().sum() > 0:
+        # use arima to fill NaNs
+        X = pd.to_numeric(cd_filt[col].dropna().index).values.reshape(-1, 1)
+        y = cd_filt[col].dropna().values
 
-        X_pred = pd.to_numeric(cd[col].index).values.reshape(-1, 1)
-        y_pred = lr_model.predict(X_pred)
-        cd[col] = cd[col].fillna(pd.Series(y_pred, index=cd[col].index))
+        model = ARIMA(y, order=(5, 1, 0))
+        model_fit = model.fit()
 
-sns.lineplot(data=cd, markers=True)
+        pred = model_fit.predict(start=0, end=len(cd_filt[col]) - 1)
+        cd_filt[col] = cd_filt[col].fillna(pd.Series(pred, index=cd_filt[col].index))
+
+sns.lineplot(data=cd_filt, markers=True)
 plt.grid()
 plt.show()
 
-cd.to_excel(excelWriter, sheet_name='Sheet3', index=True)
+cd_filt.to_excel(excelWriter, sheet_name='Sheet3', index=True)
 excelWriter.close()
