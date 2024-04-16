@@ -78,14 +78,12 @@ plt.show()
 
 for col in cd_filt:
     if cd_filt[col].isnull().sum() > 0:
-        # use arima to fill NaNs
-        X = pd.to_numeric(cd_filt[col].dropna().index).values.reshape(-1, 1)
         y = cd_filt[col].dropna().values
 
-        model = ARIMA(y, order=(5, 1, 0))
-        model_fit = model.fit()
+        model = ARIMA(y, order=(3, 0, 1))
+        model = model.fit()
 
-        pred = model_fit.predict(start=0, end=len(cd_filt[col]) - 1)
+        pred = model.predict(start=0, end=len(cd_filt[col]) - 1)
         cd_filt[col] = cd_filt[col].fillna(pd.Series(pred, index=cd_filt[col].index))
 
 sns.lineplot(data=cd_filt, markers=True)
